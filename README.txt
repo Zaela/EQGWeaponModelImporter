@@ -1,0 +1,1 @@
+EQG Weapon Model Importer for EQEmu

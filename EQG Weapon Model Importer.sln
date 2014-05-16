@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EQG Weapon Model Importer", "EQG Weapon Model Importer.vcxproj", "{19B4DAD5-21D5-47EA-8C25-CD67E4C83950}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{19B4DAD5-21D5-47EA-8C25-CD67E4C83950}.Debug|Win32.ActiveCfg = Debug|Win32
+		{19B4DAD5-21D5-47EA-8C25-CD67E4C83950}.Debug|Win32.Build.0 = Debug|Win32
+		{19B4DAD5-21D5-47EA-8C25-CD67E4C83950}.Release|Win32.ActiveCfg = Release|Win32
+		{19B4DAD5-21D5-47EA-8C25-CD67E4C83950}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

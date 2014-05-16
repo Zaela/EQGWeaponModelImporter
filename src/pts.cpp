@@ -95,21 +95,21 @@ namespace PTS
 			snprintf(d.attach_name, 64, "%s", Util::GetString(L, -1, "attach_name"));
 
 			lua_getfield(L, -1, "translation");
-			d.translation[0] = Util::GetFloat(L, -1, "x");
-			d.translation[1] = Util::GetFloat(L, -1, "z");
-			d.translation[2] = Util::GetFloat(L, -1, "y");
+			d.translation[0] = Util::GetFloat(L, -1, "z");
+			d.translation[1] = Util::GetFloat(L, -1, "y");
+			d.translation[2] = Util::GetFloat(L, -1, "x");
 			lua_pop(L, 1);
 
 			lua_getfield(L, -1, "rotation");
-			d.rotation[0] = Util::GetFloat(L, -1, "x");
-			d.rotation[1] = Util::GetFloat(L, -1, "z");
-			d.rotation[2] = Util::GetFloat(L, -1, "y");
+			d.rotation[0] = Util::GetFloat(L, -1, "z");
+			d.rotation[1] = Util::GetFloat(L, -1, "y");
+			d.rotation[2] = Util::GetFloat(L, -1, "x");
 			lua_pop(L, 1);
 
 			lua_getfield(L, -1, "scale");
-			d.scale[0] = Util::GetFloat(L, -1, "x");
-			d.scale[1] = Util::GetFloat(L, -1, "z");
-			d.scale[2] = Util::GetFloat(L, -1, "y");
+			d.scale[0] = Util::GetFloat(L, -1, "z");
+			d.scale[1] = Util::GetFloat(L, -1, "y");
+			d.scale[2] = Util::GetFloat(L, -1, "x");
 			lua_pop(L, 1);
 
 			buf.Add(&d, Data::SIZE);

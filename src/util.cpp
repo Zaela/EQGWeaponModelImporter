@@ -66,13 +66,6 @@ namespace Util
 		return 1;
 	}
 
-	void LoadFunctions(lua_State* L, const luaL_Reg* funcs, const char* name)
-	{
-		lua_newtable(L);
-		luaL_register(L, nullptr, funcs);
-		lua_setglobal(L, name);
-	}
-
 	double FloatToDouble(float val)
 	{
 		//this avoids extended precision mucking up nice round floats for display purposes (e.g. 0.7 -> 0.6999999997862...)

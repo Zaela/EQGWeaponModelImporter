@@ -378,6 +378,6 @@ namespace MOD
 
 	void LoadFunctions(lua_State* L)
 	{
-		Util::LoadFunctions(L, funcs, "mod");
+		luaL_register(L, "mod", funcs);
 	}
 }

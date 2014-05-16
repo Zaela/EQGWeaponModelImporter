@@ -14,7 +14,6 @@ namespace Util
 	byte* CheckHeader(lua_State* L, const char* magic, const char* err_name);
 	void PrepareWrite(lua_State* L, const char* err_name);
 	int FinishWrite(lua_State* L, Buffer& buf);
-	void LoadFunctions(lua_State* L, const luaL_Reg* funcs, const char* name);
 
 	double FloatToDouble(float val);
 	uint32 GetInt(lua_State* L, int index, const char* name);

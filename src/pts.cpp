@@ -128,6 +128,6 @@ namespace PTS
 
 	void LoadFunctions(lua_State* L)
 	{
-		Util::LoadFunctions(L, funcs, "pts");
+		luaL_register(L, "pts", funcs);
 	}
 }

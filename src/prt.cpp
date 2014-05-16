@@ -95,6 +95,6 @@ namespace PRT
 
 	void LoadFunctions(lua_State* L)
 	{
-		Util::LoadFunctions(L, funcs, "prt");
+		luaL_register(L, "prt", funcs);
 	}
 }

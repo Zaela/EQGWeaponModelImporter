@@ -2,6 +2,7 @@
 local eqg = require "luaeqg"
 
 local add_button = require "gui/property"
+local particle_button = require "gui/particle"
 local edit_button
 
 local function Edited()
@@ -18,7 +19,7 @@ local field = {
 	name = iup.text{visiblecolumns = 12, readonly = "YES"},
 	vert_count = iup.text{visiblecolumns = 12, readonly = "YES"},
 	tri_count = iup.text{visiblecolumns = 12, readonly = "YES"},
-	bone_count = iup.text{visiblecolumns = 12, readonly = "YES"},
+	has_particles = iup.text{visiblecolumns = 12, readonly = "YES"},
 
 	material_opaque = iup.text{visiblecolumns = 12, action = Edited, k_any = EnterKey},
 
@@ -31,7 +32,7 @@ local stats_grid = iup.gridbox{
 	iup.label{title = "Name"}, field.name,
 	iup.label{title = "Num Vertices"}, field.vert_count,
 	iup.label{title = "Num Triangles"}, field.tri_count,
-	iup.label{title = "Num Bones"}, field.bone_count,
+	iup.label{title = "Particles"}, field.has_particles,
 	numdiv = 2, orientation = "HORIZONTAL", homogeneouslin = "YES",
 	gapcol = 10, gaplin = 8, alignmentlin = "ACENTER", sizelin = 2
 }
@@ -43,14 +44,16 @@ local ipairs = ipairs
 
 local cur_data
 local cur_name
-function UpdateDisplay(d, str)
+local cur_name_mod
+function UpdateDisplay(d, str, set)
 	cur_data = d
 	cur_name = str
+	cur_name_mod = str .. ".mod"
 
 	field.name.value = str
 	field.vert_count.value = #d.vertices
 	field.tri_count.value = #d.triangles
-	field.bone_count.value = #d.bones
+	field.has_particles.value = (set.prt and set.pts) and "Yes" or "No"
 
 	material_list[1] = nil
 	material_list.autoredraw = "NO"
@@ -108,7 +111,7 @@ function property_list:action(str, pos, state)
 	end
 end
 
-edit_button = iup.button{title = "Commit Change", padding = "10x0", active = "NO"}
+edit_button = iup.button{title = "Commit Change", padding = "22x0", active = "NO"}
 
 function edit_button:action()
 	if not cur_data or not cur_material or not cur_property or not cur_name then return end
@@ -123,9 +126,9 @@ function edit_button:action()
 		p.value = field.property_value.value
 	end
 
-	local s, dir_entry = pcall(mod.Write, d, cur_name, eqg.CalcCRC(cur_name))
+	local s, dir_entry = pcall(mod.Write, d, cur_name_mod, eqg.CalcCRC(cur_name_mod))
 	if s then
-		SaveDirEntry(dir_entry, cur_name)
+		SaveDirEntry(dir_entry, cur_name_mod)
 		self.active = "NO"
 	else
 		error_popup(dir_entry)
@@ -134,10 +137,10 @@ end
 
 function SaveNewProperty()
 	local d = cur_data
-	local name = cur_name
+	local name = cur_name_mod
 	if not d or not name then return end
 
-	UpdateDisplay(d, name)
+	UpdateDisplay(d, cur_name)
 	material_list:action(nil, 1, 1)
 
 	local s, dir_entry = pcall(mod.Write, d, name, eqg.CalcCRC(name))
@@ -162,7 +165,7 @@ end
 return iup.hbox{
 	iup.vbox{stats_grid, iup.vbox{iup.label{title = "Materials"}, material_list; gap = 10, alignment = "ACENTER"};
 		gap = 15, alignment = "ACENTER"},
-	iup.vbox{properties_grid; iup.vbox{iup.label{title = "Material Properties"}, property_list, add_button, edit_button; gap = 10, alignment = "ACENTER"};
+	iup.vbox{properties_grid; iup.vbox{iup.label{title = "Material Properties"}, property_list, add_button, particle_button, edit_button; gap = 10, alignment = "ACENTER"};
 		gap = 15, alignment = "ACENTER"},
 	gap = 10
 }

@@ -34,7 +34,11 @@ namespace MOD
 	{
 		uint32 name_index;
 		uint32 type;
-		uint32 value; //may be int (string index) or float depending on the type
+		union
+		{
+			uint32 i;
+			float f;
+		} value; //may be int (string index) or float depending on the type
 		static const uint32 SIZE = sizeof(uint32) * 3;
 	};
 

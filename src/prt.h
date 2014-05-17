@@ -25,7 +25,7 @@ namespace PRT
 		uint32 unknownA[5]; //Pretty sure last 3 have something to do with durations
 		uint32 duration; //? usually 5000
 		uint32 unknownB; //Always seen as 0
-		uint32 unknownFFFFFFFF; //Always seen as FFFFFFFF (Transparency maybe?)
+		int32 unknownFFFFFFFF; //Always seen as FFFFFFFF (Transparency maybe?)
 		uint32 unknownC; //Seen 1 or 0, mostly 0
 		static const uint32 SIZE = 64 + sizeof(uint32) * 10;
 	};

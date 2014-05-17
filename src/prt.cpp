@@ -110,11 +110,14 @@ namespace PRT
 			lua_getfield(L, 1, "unknown");
 			for (int j = 1; j <= 5; ++j)
 			{
-				d.unknownA[j - 1] = Util::GetInt(L, -1, j);
+				d.unknownA[j - 1] = Util::GetInt(L, -2, j);
 			}
-			d.unknownB = Util::GetInt(L, -1, 6);
-			d.unknownFFFFFFFF = Util::GetInt(L, -1, 7);
-			d.unknownC = Util::GetInt(L, -1, 8);
+			d.unknownB = Util::GetInt(L, -2, 6);
+			lua_pushinteger(L, 7);
+			lua_gettable(L, -2);
+			d.unknownFFFFFFFF = lua_tointeger(L, -1);
+			lua_pop(L, 1);
+			d.unknownC = Util::GetInt(L, -2, 8);
 			lua_pop(L, 1);
 
 			buf.Add(&d, DataV4::SIZE);

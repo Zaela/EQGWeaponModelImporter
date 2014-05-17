@@ -44,9 +44,9 @@ namespace MOD
 				lua_pushinteger(L, prop->type);
 				lua_setfield(L, -2, "type");
 				if (prop->type == 0)
-					lua_pushnumber(L, Util::FloatToDouble(*(float*)&prop->value));
+					lua_pushnumber(L, Util::FloatToDouble(prop->value.f));
 				else
-					lua_pushstring(L, &string_block[prop->value]);
+					lua_pushstring(L, &string_block[prop->value.i]);
 				lua_setfield(L, -2, "value");
 
 				lua_settable(L, -3);
@@ -256,13 +256,12 @@ namespace MOD
 				prop.type = Util::GetInt(L, -1, "type");
 				if (prop.type == 0)
 				{
-					float val = Util::GetFloat(L, -1, "value");
-					prop.value = *(uint32*)&val;
+					prop.value.f = Util::GetFloat(L, -1, "value");
 				}
 				else
 				{
 					name = Util::GetString(L, -1, "value", len);
-					prop.value = name_buf.GetLen();
+					prop.value.i = name_buf.GetLen();
 					name_buf.Add(name, len);
 				}
 

@@ -1,5 +1,5 @@
 
-local button = iup.button{title = "Add Property", padding = "19x0"}
+local button = iup.button{title = "Add Property", padding = "31x0"}
 
 local options = {
 	e_TextureDiffuse0 = 2,

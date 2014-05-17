@@ -84,6 +84,16 @@ namespace Util
 		return val;
 	}
 
+	uint32 GetInt(lua_State* L, int index, int pos)
+	{
+		uint32 val = 0;
+		lua_pushinteger(L, pos);
+		lua_gettable(L, index);
+		val |= lua_tointeger(L, -1);
+		lua_pop(L, -1);
+		return val;
+	}
+
 	float GetFloat(lua_State* L, int index, const char* name)
 	{
 		lua_getfield(L, index, name);

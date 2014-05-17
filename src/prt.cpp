@@ -22,13 +22,13 @@ namespace PRT
 			lua_pushinteger(L, data->unknownA[i - 1]);
 			lua_settable(L, -3);
 		}
-		lua_pushinteger(L, i++);
+		lua_pushinteger(L, 6);
 		lua_pushinteger(L, data->unknownB);
 		lua_settable(L, -3);
-		lua_pushinteger(L, i++);
+		lua_pushinteger(L, 7);
 		lua_pushinteger(L, data->unknownFFFFFFFF);
 		lua_settable(L, -3);
-		lua_pushinteger(L, i);
+		lua_pushinteger(L, 8);
 		lua_pushinteger(L, data->unknownC);
 		lua_settable(L, -3);
 		
@@ -83,8 +83,46 @@ namespace PRT
 
 	int Write(lua_State* L)
 	{
-		//need to decide whether to write as v4 or v5
-		return 1;
+		//takes a prt data table, returns a .eqg directory entry table
+		Util::PrepareWrite(L, ".prt");
+
+		Header header;
+		header.magic[0] = 'P';
+		header.magic[1] = 'T';
+		header.magic[2] = 'C';
+		header.magic[3] = 'L';
+		header.version = 4;
+		header.particle_count = lua_objlen(L, 1);
+
+		Util::Buffer buf;
+		buf.Add(&header, Header::SIZE);
+
+		for (uint32 i = 1; i <= header.particle_count; ++i)
+		{
+			lua_pushinteger(L, i);
+			lua_gettable(L, 1);
+
+			DataV4 d;
+			d.particle_id = Util::GetInt(L, 1, "particle_id");
+			snprintf(d.particle_name, 64, "%s", Util::GetString(L, 1, "particle_name"));
+			d.duration = Util::GetInt(L, 1, "duration");
+
+			lua_getfield(L, 1, "unknown");
+			for (int j = 1; j <= 5; ++j)
+			{
+				d.unknownA[j - 1] = Util::GetInt(L, -1, j);
+			}
+			d.unknownB = Util::GetInt(L, -1, 6);
+			d.unknownFFFFFFFF = Util::GetInt(L, -1, 7);
+			d.unknownC = Util::GetInt(L, -1, 8);
+			lua_pop(L, 1);
+
+			buf.Add(&d, DataV4::SIZE);
+
+			lua_pop(L, 1);
+		}
+
+		return Util::FinishWrite(L, buf);
 	}
 
 	static const luaL_Reg funcs[] = {

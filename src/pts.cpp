@@ -18,7 +18,7 @@ namespace PTS
 			pos += Data::SIZE;
 
 			lua_pushinteger(L, i);
-			lua_createtable(L, 0, 11);
+			lua_createtable(L, 0, 5);
 
 			lua_pushstring(L, d->particle_name);
 			lua_setfield(L, -2, "particle_name");

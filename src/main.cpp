@@ -41,11 +41,8 @@ int main()
 #else
 		printf("Error: Could not load GUI script: %s\n", lua_tostring(L, -1));
 #endif
-		lua_close(L);
-		return 1;
 	}
-
-	if (lua_pcall(L, 0, 0, 0) != 0)
+	else if (lua_pcall(L, 0, 0, 0) != 0)
 	{
 #ifdef _WIN32
 		char msg[1024];

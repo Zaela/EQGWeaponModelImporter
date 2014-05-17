@@ -17,6 +17,7 @@ namespace Util
 
 	double FloatToDouble(float val);
 	uint32 GetInt(lua_State* L, int index, const char* name);
+	uint32 GetInt(lua_State* L, int index, int pos);
 	float GetFloat(lua_State* L, int index, const char* name);
 	const char* GetString(lua_State* L, int index, const char* name, uint32& len);
 	const char* GetString(lua_State* L, int index, const char* name);

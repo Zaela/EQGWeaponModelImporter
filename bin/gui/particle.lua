@@ -5,7 +5,8 @@ local entry = require "gui/particle_entries"
 
 local button = iup.button{title = "View Particle Settings", padding = "10x0"}
 local dlg = iup.dialog{iup.hbox{point, entry;
-	nmargin = "20x10", gap = 10, alignment = "ACENTER"}; title = "Particle Settings", size = "x200"}
+	nmargin = "20x10", gap = 10, alignment = "ACENTER"}; title = "Particle Settings", size = "x200",
+	k_any = function(self,key) if key == iup.K_ESC then self:hide() end end}
 
 local pcall = pcall
 

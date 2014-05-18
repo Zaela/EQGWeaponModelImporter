@@ -11,10 +11,10 @@ local cur
 function UpdateParticleEntries(prt, name)
 	data = prt
 	list[1] = nil
+	cur = {}
 	if not prt then return end
 	list.autoredraw = "NO"
 	local n = 1
-	cur = {}
 	for _, p in ipairs(prt) do
 		if p.particle_name == name then
 			list[n] = tostring(n)

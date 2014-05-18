@@ -78,16 +78,21 @@ function list:action(str, pos, state)
 		field.scale_z.value = d.scale.z
 
 		local sel = selection
-		local s, data = pcall(eqg.OpenEntry, sel.prt)
-		if s then
-			s, data = pcall(prt.Read, sel.prt)
+		if sel.prt then
+			local s, data = pcall(eqg.OpenEntry, sel.prt)
 			if s then
-				ClearParticleEntries()
-				UpdateParticleEntries(data, str)
-				return
+				s, data = pcall(prt.Read, sel.prt)
+				if s then
+					ClearParticleEntries()
+					UpdateParticleEntries(data, str)
+					return
+				end
 			end
+			error_popup(data)
+		else
+			ClearParticleEntries()
+			UpdateParticleEntries()
 		end
-		error_popup(data)
 	end
 end
 

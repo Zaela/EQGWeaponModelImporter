@@ -13,18 +13,25 @@ function button:action()
 	local sel = selection
 	if not sel then return end
 
-	local s, data = pcall(eqg.OpenEntry, sel.pts)
-	if s then
-		s, data = pcall(pts.Read, sel.pts)
+	if sel.pts then
+		local s, data = pcall(eqg.OpenEntry, sel.pts)
 		if s then
-			UpdateParticlePoints(data)
-			ClearPointFields()
-			ClearParticleEntries()
-			iup.Popup(dlg)
-			return
+			s, data = pcall(pts.Read, sel.pts)
+			if s then
+				UpdateParticlePoints(data)
+				ClearPointFields()
+				ClearParticleEntries()
+				iup.Popup(dlg)
+				return
+			end
 		end
+		error_popup(data)
+	else
+		UpdateParticlePoints()
+		ClearPointFields()
+		ClearParticleEntries()
+		iup.Popup(dlg)
 	end
-	error_popup(data)
 end
 
 return button

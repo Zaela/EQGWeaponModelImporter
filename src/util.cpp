@@ -90,7 +90,7 @@ namespace Util
 		lua_pushinteger(L, pos);
 		lua_gettable(L, index);
 		val |= lua_tointeger(L, -1);
-		lua_pop(L, -1);
+		lua_pop(L, 1);
 		return val;
 	}
 

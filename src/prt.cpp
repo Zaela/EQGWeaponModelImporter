@@ -103,11 +103,11 @@ namespace PRT
 			lua_gettable(L, 1);
 
 			DataV4 d;
-			d.particle_id = Util::GetInt(L, 1, "particle_id");
-			snprintf(d.particle_name, 64, "%s", Util::GetString(L, 1, "particle_name"));
-			d.duration = Util::GetInt(L, 1, "duration");
+			d.particle_id = Util::GetInt(L, -1, "particle_id");
+			snprintf(d.particle_name, 64, "%s", Util::GetString(L, -1, "particle_name"));
+			d.duration = Util::GetInt(L, -1, "duration");
 
-			lua_getfield(L, 1, "unknown");
+			lua_getfield(L, -1, "unknown");
 			for (int j = 1; j <= 5; ++j)
 			{
 				d.unknownA[j - 1] = Util::GetInt(L, -2, j);
@@ -115,7 +115,10 @@ namespace PRT
 			d.unknownB = Util::GetInt(L, -2, 6);
 			lua_pushinteger(L, 7);
 			lua_gettable(L, -2);
-			d.unknownFFFFFFFF = lua_tointeger(L, -1);
+			double u = lua_tonumber(L, -1);
+			uint32 a = static_cast<uint32>(u);
+			d.unknownFFFFFFFF = 0;
+			d.unknownFFFFFFFF |= a;
 			lua_pop(L, 1);
 			d.unknownC = Util::GetInt(L, -2, 8);
 			lua_pop(L, 1);

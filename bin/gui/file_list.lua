@@ -30,7 +30,7 @@ function GatherFiles(dir)
 			local bn = by_name[name]
 			if not bn then
 				ent.pos = i
-				by_name[name] = {[ext] = ent}
+				by_name[name] = {[ext] = ent, name = name}
 			elseif not bn[ext] then
 				ent.pos = i
 				bn[ext] = ent
@@ -83,6 +83,14 @@ function FilterFileList(dir)
 		end
 	end
 	list.autoredraw = "YES"
+end
+
+function RefreshSelection()
+	local sel = selection
+	local path = open_path
+	if not sel or not path then return end
+	UpdateFileList(path, true)
+	selection = by_name[sel.name]
 end
 
 function list:action(str, pos, state)

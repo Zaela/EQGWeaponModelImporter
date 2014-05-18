@@ -3,8 +3,10 @@ local eqg = require "luaeqg"
 
 local list = iup.list{visiblelines = 5, expand = "VERTICAL", visiblecolumns = 16}
 
+local pcall = pcall
 local ipairs = ipairs
 local pairs = pairs
+local edit_button
 
 local data
 function UpdateParticlePoints(pts)
@@ -18,18 +20,28 @@ function UpdateParticlePoints(pts)
 	list.autoredraw = "YES"
 end
 
+local function Edited()
+	edit_button.active = "YES"
+end
+
+local function EnterKey(self, key)
+	if key == iup.K_CR then
+		edit_button:action()
+	end
+end
+
 local field = {
-	name = iup.text{visiblecolumns = 12},
-	attach = iup.text{visiblecolumns = 12},
-	trans_x = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT},
-	trans_y = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT},
-	trans_z = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT},
-	rot_x = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT},
-	rot_y = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT},
-	rot_z = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT},
-	scale_x = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT},
-	scale_y = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT},
-	scale_z = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT},
+	name = iup.text{visiblecolumns = 12, readonly = "YES"},
+	attach = iup.text{visiblecolumns = 12, action = Edited, k_any = EnterKey},
+	trans_x = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
+	trans_y = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
+	trans_z = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
+	rot_x = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
+	rot_y = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
+	rot_z = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
+	scale_x = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
+	scale_y = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
+	scale_z = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
 }
 
 local grid = iup.gridbox{
@@ -52,6 +64,7 @@ function list:action(str, pos, state)
 	if state == 1 then
 		local d = data[pos]
 		if not d then return end
+		point_selection = d
 		field.name.value = d.particle_name
 		field.attach.value = d.attach_name
 		field.trans_x.value = d.translation.x
@@ -82,14 +95,106 @@ function ClearPointFields()
 	for _, f in pairs(field) do
 		f.value = ""
 	end
+	edit_button.active = "NO"
+	point_selection = nil
 end
 
-local button = iup.button{title = "Add Point", padding = "10x0"}
+local function Save()
+	local sel = selection
+	local dir = open_dir
+	local path = open_path
+	if not sel or not data or not dir or not path then return end
 
-local edit_button = iup.button{title = "Commit Changes", padding = "10x0"}
+	local name = sel.name .. ".pts"
+	local s, d = pcall(pts.Write, data, name, eqg.CalcCRC(name))
+	if s then
+		local pos = sel.pts and sel.pts.pos or (#dir + 1)
+		dir[pos] = d
+		d.pos = pos
+		s, d = pcall(eqg.WriteDirectory, path, dir)
+		if s then
+			RefreshSelection()
+			return
+		end
+	end
+	error_popup(d)
+end
+
+local add_button = iup.button{title = "Add Point", padding = "10x0"}
+
+function add_button:action()
+	local name
+	local input = iup.text{visiblecolumns = 12, nc = 63}
+	local getname
+	local but = iup.button{title = "Done", action = function() name = tostring(input.value) getname:hide() end}
+	getname = iup.dialog{iup.vbox{
+		iup.label{title = "Please enter a name to identify the new point:"},
+		input, but, gap = 12, nmargin = "15x15", alignment = "ACENTER"};
+		k_any = function(self, key) if key == iup.K_CR then but:action() end end}
+	iup.Popup(getname)
+	iup.Destroy(getname)
+
+	if not name or name:len() < 1 then return end
+	local point = {
+		particle_name = name,
+		attach_name = "ATTACH_TO_ORIGIN",
+		translation = {x = 0, y = 0, z = 0},
+		rotation = {x = 0, y = 0, z = 0},
+		scale = {x = 1, y = 1, z = 1},
+	}
+
+	if not data then
+		data = {}
+	end
+	data[#data + 1] = point
+
+	Save()
+	UpdateParticlePoints(data)
+	ClearPointFields()
+end
+
+edit_button = iup.button{title = "Commit Changes", padding = "10x0"}
+
+local tonumber = tonumber
+
+function edit_button:action()
+	local d = point_selection
+	if not d then return end
+
+	d.attach_name = field.attach.value
+	d.translation.x = tonumber(field.trans_x.value)
+	d.translation.y = tonumber(field.trans_y.value)
+	d.translation.z = tonumber(field.trans_z.value)
+	d.rotation.x = tonumber(field.rot_x.value)
+	d.rotation.y = tonumber(field.rot_y.value)
+	d.rotation.z = tonumber(field.rot_z.value)
+	d.scale.x = tonumber(field.scale_x.value)
+	d.scale.y = tonumber(field.scale_y.value)
+	d.scale.z = tonumber(field.scale_z.value)
+
+	Save()
+	edit_button.active = "NO"
+	local sel = selection
+	local s, update = pcall(pts.Read, sel.pts)
+	if s then
+		data = update
+	end
+end
+
+function RefreshPointSelection()
+	local d = point_selection
+	if not d or not data then return end
+
+	for i, point in ipairs(data) do
+		if point == d then
+			list:action(d.particle_name, i, 1)
+			return
+		end
+	end
+end
 
 return iup.hbox{
-	iup.vbox{iup.label{title = "Emission Points"}, list, button;
+	iup.vbox{iup.label{title = "Emission Points"}, list, add_button;
 		gap = 10, alignment = "ACENTER"},
 	iup.vbox{grid, edit_button; gap = 52, alignment = "ACENTER"};
 	gap = 10, alignment = "ACENTER"}

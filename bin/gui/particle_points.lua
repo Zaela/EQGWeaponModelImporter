@@ -6,12 +6,21 @@ local list = iup.list{visiblelines = 5, expand = "VERTICAL", visiblecolumns = 16
 local pcall = pcall
 local ipairs = ipairs
 local pairs = pairs
-local edit_button
+local edit_button, attach_list
 
-local data
-function UpdateParticlePoints(pts)
+local data, bones
+function UpdateParticlePoints(pts, mod)
 	data = pts
 	list[1] = nil
+	attach_list[2] = nil
+	if not mod then return end
+	local n = 2
+	bones = {}
+	for i, bone in ipairs(mod.bones) do
+		attach_list[n] = bone.name
+		bones[i] = bone.name
+		n = n + 1
+	end
 	if not pts then return end
 	list.autoredraw = "NO"
 	for i, p in ipairs(pts) do
@@ -30,9 +39,12 @@ local function EnterKey(self, key)
 	end
 end
 
+attach_list = iup.list{visiblecolumns = 10, dropdown = "YES", "ATTACH_TO_ORIGIN",
+	action = Edited, k_any = EnterKey}
+
 local field = {
 	name = iup.text{visiblecolumns = 12, readonly = "YES"},
-	attach = iup.text{visiblecolumns = 12, action = Edited, k_any = EnterKey},
+	--attach = iup.text{visiblecolumns = 12, action = Edited, k_any = EnterKey},
 	trans_x = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
 	trans_y = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
 	trans_z = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
@@ -46,7 +58,7 @@ local field = {
 
 local grid = iup.gridbox{
 	iup.label{title = "Identifier"}, field.name,
-	iup.label{title = "Attach To"}, field.attach,
+	iup.label{title = "Attach To"}, attach_list,--field.attach,
 	iup.label{title = "Translation X"}, field.trans_x,
 	iup.label{title = "Translation Y"}, field.trans_y,
 	iup.label{title = "Translation Z"}, field.trans_z,
@@ -66,7 +78,7 @@ function list:action(str, pos, state)
 		if not d then return end
 		point_selection = d
 		field.name.value = d.particle_name
-		field.attach.value = d.attach_name
+		--field.attach.value = d.attach_name
 		field.trans_x.value = d.translation.x
 		field.trans_y.value = d.translation.y
 		field.trans_z.value = d.translation.z
@@ -76,6 +88,18 @@ function list:action(str, pos, state)
 		field.scale_x.value = d.scale.x
 		field.scale_y.value = d.scale.y
 		field.scale_z.value = d.scale.z
+
+		local name = d.attach_name
+		if name == "ATTACH_TO_ORIGIN" then
+			attach_list.value = 1
+		else
+			for i, n in ipairs(bones) do
+				if name == n then
+					attach_list.value = i + 1
+					break
+				end
+			end
+		end
 
 		local sel = selection
 		if sel.prt then
@@ -102,6 +126,7 @@ function ClearPointFields()
 	end
 	edit_button.active = "NO"
 	point_selection = nil
+	attach_list.value = 0
 end
 
 local function Save()
@@ -166,7 +191,9 @@ function edit_button:action()
 	local d = point_selection
 	if not d then return end
 
-	d.attach_name = field.attach.value
+	local v = tonumber(attach_list.value)
+	d.attach_name = (v < 2) and "ATTACH_TO_ORIGIN" or bones[v - 1]
+	--d.attach_name = field.attach.value
 	d.translation.x = tonumber(field.trans_x.value)
 	d.translation.y = tonumber(field.trans_y.value)
 	d.translation.z = tonumber(field.trans_z.value)

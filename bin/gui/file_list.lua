@@ -25,15 +25,18 @@ local by_name
 
 function GatherFiles(dir)
 	for i, ent in ipairs(dir) do
-		local name, ext = ent.name:match("(it%d+)%.(%a%a%a)")
-		if name and ext then
-			local bn = by_name[name]
-			if not bn then
-				ent.pos = i
-				by_name[name] = {[ext] = ent, name = name}
-			elseif not bn[ext] then
-				ent.pos = i
-				bn[ext] = ent
+		local name, ext = ent.name
+		if name:find("%.mod$") or name:find("%.pts$") or name:find("%.prt$") then
+			name, ext = ent.name:match("^(%w+)%.(%a%a%a)$")
+			if name and ext then
+				local bn = by_name[name]
+				if not bn then
+					ent.pos = i
+					by_name[name] = {[ext] = ent, name = name}
+				elseif not bn[ext] then
+					ent.pos = i
+					bn[ext] = ent
+				end
 			end
 		end
 	end
@@ -102,6 +105,7 @@ function list:action(str, pos, state)
 			if s then
 				s, data = pcall(mod.Read, sel.mod)
 				if s then
+					model = data
 					ClearDisplay()
 					UpdateDisplay(data, str, sel)
 					return

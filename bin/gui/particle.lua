@@ -19,7 +19,7 @@ function button:action()
 		if s then
 			s, data = pcall(pts.Read, sel.pts)
 			if s then
-				UpdateParticlePoints(data)
+				UpdateParticlePoints(data, model)
 				ClearPointFields()
 				ClearParticleEntries()
 				iup.Popup(dlg)
@@ -28,7 +28,7 @@ function button:action()
 		end
 		error_popup(data)
 	else
-		UpdateParticlePoints()
+		UpdateParticlePoints(nil, model)
 		ClearPointFields()
 		ClearParticleEntries()
 		iup.Popup(dlg)

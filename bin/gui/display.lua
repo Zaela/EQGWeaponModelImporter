@@ -140,7 +140,7 @@ function SaveNewProperty()
 	local name = cur_name_mod
 	if not d or not name then return end
 
-	UpdateDisplay(d, cur_name)
+	UpdateDisplay(d, cur_name, selection)
 	material_list:action(nil, 1, 1)
 
 	local s, dir_entry = pcall(mod.Write, d, name, eqg.CalcCRC(name))

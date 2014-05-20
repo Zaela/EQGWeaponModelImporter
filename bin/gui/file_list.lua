@@ -27,7 +27,7 @@ function GatherFiles(dir)
 	for i, ent in ipairs(dir) do
 		local name, ext = ent.name
 		if name:find("%.mod$") or name:find("%.pts$") or name:find("%.prt$") then
-			name, ext = ent.name:match("^(%w+)%.(%a%a%a)$")
+			name, ext = name:match("^(%w+)%.(%a%a%a)$")
 			if name and ext then
 				local bn = by_name[name]
 				if not bn then

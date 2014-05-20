@@ -74,3 +74,5 @@ window:show()
 iup.MainLoop()
 
 eqg.CloseDirectory(open_dir)
+
+iup.Close()

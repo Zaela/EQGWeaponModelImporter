@@ -40,11 +40,10 @@ local function EnterKey(self, key)
 end
 
 attach_list = iup.list{visiblecolumns = 10, dropdown = "YES", "ATTACH_TO_ORIGIN",
-	action = Edited, k_any = EnterKey}
+	action = Edited, k_any = EnterKey, visible_items = 10}
 
 local field = {
 	name = iup.text{visiblecolumns = 12, readonly = "YES"},
-	--attach = iup.text{visiblecolumns = 12, action = Edited, k_any = EnterKey},
 	trans_x = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
 	trans_y = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
 	trans_z = iup.text{visiblecolumns = 12, mask = iup.MASK_FLOAT, action = Edited, k_any = EnterKey},
@@ -58,7 +57,7 @@ local field = {
 
 local grid = iup.gridbox{
 	iup.label{title = "Identifier"}, field.name,
-	iup.label{title = "Attach To"}, attach_list,--field.attach,
+	iup.label{title = "Attach To"}, attach_list,
 	iup.label{title = "Translation X"}, field.trans_x,
 	iup.label{title = "Translation Y"}, field.trans_y,
 	iup.label{title = "Translation Z"}, field.trans_z,
@@ -78,7 +77,6 @@ function list:action(str, pos, state)
 		if not d then return end
 		point_selection = d
 		field.name.value = d.particle_name
-		--field.attach.value = d.attach_name
 		field.trans_x.value = d.translation.x
 		field.trans_y.value = d.translation.y
 		field.trans_z.value = d.translation.z
@@ -193,7 +191,6 @@ function edit_button:action()
 
 	local v = tonumber(attach_list.value)
 	d.attach_name = (v < 2) and "ATTACH_TO_ORIGIN" or bones[v - 1]
-	--d.attach_name = field.attach.value
 	d.translation.x = tonumber(field.trans_x.value)
 	d.translation.y = tonumber(field.trans_y.value)
 	d.translation.z = tonumber(field.trans_z.value)

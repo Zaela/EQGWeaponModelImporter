@@ -21,7 +21,7 @@ end
 local ipairs = ipairs
 local pairs = pairs
 local pcall = pcall
-local by_name
+--local by_name
 
 function GatherFiles(dir)
 	for i, ent in ipairs(dir) do

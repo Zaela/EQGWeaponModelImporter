@@ -49,6 +49,7 @@ function UpdateDisplay(d, str, set)
 	cur_data = d
 	cur_name = str
 	cur_name_mod = str .. ".mod"
+	set = set or by_name[str]
 
 	field.name.value = str
 	field.vert_count.value = #d.vertices

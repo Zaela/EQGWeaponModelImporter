@@ -177,7 +177,7 @@ function add_button:action()
 	data[#data + 1] = point
 
 	Save()
-	UpdateParticlePoints(data)
+	UpdateParticlePoints(data, model)
 	ClearPointFields()
 end
 

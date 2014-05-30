@@ -1,6 +1,7 @@
 
 local eqg = require "luaeqg"
 local ply = require "gui/ply"
+local obj = require "gui/obj"
 
 local list = iup.list{visiblelines = 10, expand = "VERTICAL", visiblecolumns = 16,
 	sort = "YES"}
@@ -21,7 +22,6 @@ end
 local ipairs = ipairs
 local pairs = pairs
 local pcall = pcall
---local by_name
 
 function GatherFiles(dir)
 	for i, ent in ipairs(dir) do
@@ -160,9 +160,9 @@ function Export()
 	iup.Destroy(dlg)
 end
 
-function Import()
+function Import(filter, import_func)
 	local dlg = iup.filedlg{title = "Select file to import", dialogtype = "FILE",
-		extfilter = "Stanford PLY (*.ply)|*.ply|"}
+		extfilter = filter}
 	iup.Popup(dlg)
 	if dlg.status == "0" then
 		local path = dlg.value
@@ -192,7 +192,7 @@ function Import()
 			else
 				pos = #dir + 1
 			end
-			local data = ply.Import(path)
+			local data = import_func(path, dir, (pos > #dir))
 			name = name .. ".mod"
 			local s, err = pcall(mod.Write, data, name, eqg.CalcCRC(name))
 			if s then
@@ -212,37 +212,31 @@ function Import()
 	end
 	iup.Destroy(dlg)
 end
---[=[
-function Delete()
-	local dlg = iup.messagedlg{buttondefault = "2", title = "Confirm Deletion",
-		buttons = "OKCANCEL", dialogtype = "WARNING", value = "Are you sure you want to delete this file?"}
-	iup.Popup(dlg)
-	if dlg.buttonresponse == "2" then return end
-	local dir = open_dir
-	local path = open_path
-	local val = list.value
-	if dir and path and val then
-		table.remove(dir, by_name[list[val]].pos)
-		local s, err = pcall(eqg.WriteDirectory, path, dir)
-		if s then
-			UpdateFileList(path)
-			iup.Destroy(dlg)
-			return
-		end
-		error_popup(err)
-	end
-	iup.Destroy(dlg)
+
+local function ImportPLY()
+	Import("Stanford PLY (*.ply)|*.ply|", ply.Import)
 end
-]=]
+
+local function ImportOBJ()
+	Import("Wavefront OBJ (*.obj)|*.obj|", obj.Import)
+end
+
 function list:button_cb(button, pressed, x, y)
 	if button == iup.BUTTON3 and pressed == 0 then
 		local has = selection and "YES" or "NO"
 		local mx, my = iup.GetGlobal("CURSORPOS"):match("(%d+)x(%d+)")
 		local menu = iup.menu{
-			iup.item{title = "Export Selected Model to .ply", action = Export, active = has},
-			iup.item{title = "Import Model from .ply", action = Import},
-			--iup.separator{},
-			--iup.item{title = "Delete Selected File", action = Delete, active = has},
+			iup.submenu{title = "Export Model", active = has,
+				iup.menu{
+					iup.item{title = "To .ply", action = Export},
+				}
+			},
+			iup.submenu{title = "Import Model",
+				iup.menu{
+					iup.item{title = "From .obj", action = ImportOBJ},
+					iup.item{title = "From .ply", action = ImportPLY},
+				}
+			}
 		}
 		iup.Popup(menu, mx, my)
 		iup.Destroy(menu)

@@ -62,7 +62,7 @@ local menu = iup.menu{
 }
 
 local window = assert(iup.dialog{iup.hbox{dir_list, file_list, display; nmargin = "10x10", gap = 10};
-	title = "EQG Weapon Model Importer v1.0", menu = menu, size = "610x250"})
+	title = "EQG Weapon Model Importer v1.1", menu = menu, size = "610x250"})
 
 function window:k_any(key)
 	if key == iup.K_ESC then

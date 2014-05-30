@@ -4,7 +4,9 @@ local button = iup.button{title = "Add Property", padding = "31x0"}
 local options = {
 	e_TextureDiffuse0 = 2,
 	e_TextureNormal0 = 2,
+	e_TextureCoverage0 = 2,
 	e_TextureEnvironment0 = 2,
+	e_TextureGlow0 = 2,
 	e_fShininess0 = 0,
 	e_fBumpiness0 = 0,
 	e_fEnvMapStrength0 = 0,

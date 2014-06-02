@@ -15,13 +15,16 @@ local function ReadMTL(path)
 
 	for line in f:lines() do
 		local cmd, args = line:match("(%S+)%s([^\n]+)")
-		if cmd == "newmtl" then
-			cur = {}
-			out[args] = cur
-		elseif cmd == "map_Kd" then
-			cur.diffuse_map = args
-		elseif cmd == "map_bump" then
-			cur.normal_map = args
+		if cmd and args then
+			cmd = cmd:lower()
+			if cmd == "newmtl" then
+				cur = {}
+				out[args] = cur
+			elseif cmd == "map_kd" then
+				cur.diffuse_map = args
+			elseif cmd == "map_bump" then
+				cur.normal_map = args
+			end
 		end
 	end
 

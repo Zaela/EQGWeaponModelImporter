@@ -68,8 +68,8 @@ function obj.Import(path, dir, appending)
 	end
 
 	for line in f:lines() do
+		local cmd, args = line:match("(%S+)%s([^\n]+)")
 		if mat_src then
-			local cmd, args = line:match("(%S+)%s([^\n]+)")
 			if cmd == "v" then
 				local x, y, z = args:match("(%-?%d+%.%d+) (%-?%d+%.%d+) (%-?%d+%.%d+)")
 				if x and y and z then
@@ -111,11 +111,8 @@ function obj.Import(path, dir, appending)
 					})
 				end
 			end
-		else
-			local cmd, args = line:match("(%S+)%s([^\n]+)")
-			if cmd == "mtllib" then
-				mat_src = ReadMTL(path:gsub("[^\\/]+%.%w+$", args))
-			end
+		elseif cmd == "mtllib" then
+			mat_src = ReadMTL(path:gsub("[^\\/]+%.%w+$", args))
 		end
 	end
 

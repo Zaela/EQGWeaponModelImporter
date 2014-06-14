@@ -14,7 +14,7 @@ local function ReadMTL(path)
 	local cur
 
 	for line in f:lines() do
-		local cmd, args = line:match("(%S+)%s([^\n]+)")
+		local cmd, args = line:match("%s*(%S+)%s([^\n]+)")
 		if cmd and args then
 			cmd = cmd:lower()
 			if cmd == "newmtl" then
@@ -68,51 +68,56 @@ function obj.Import(path, dir, appending)
 	end
 
 	for line in f:lines() do
-		local cmd, args = line:match("(%S+)%s([^\n]+)")
-		if mat_src then
-			if cmd == "v" then
-				local x, y, z = args:match("(%-?%d+%.%d+) (%-?%d+%.%d+) (%-?%d+%.%d+)")
-				if x and y and z then
-					insert(vert_src, {x = tonumber(x), y = tonumber(y), z = tonumber(z)})
-				end
-			elseif cmd == "vt" then
-				local u, v = args:match("(%-?%d+%.%d+) (%-?%d+%.%d+)")
-				if u and v then
-					insert(uv_src, {u = tonumber(u), v = tonumber(v)})
-				end
-			elseif cmd == "vn" then
-				local i, j, k = args:match("(%-?%d+%.%d+) (%-?%d+%.%d+) (%-?%d+%.%d+)")
-				if i and j and k then
-					insert(norm_src, {i = tonumber(i), j = tonumber(j), k = tonumber(k)})
-				end
-			elseif cmd == "usemtl" then
-				local mat = mat_src[args]
-				if mat then
-					mat_index = mat_index + 1
-					local tbl = {name = args, opaque = "Opaque_MaxCBSGE1.fx"}
-					if mat.diffuse_map then
-						tbl[1] = {name = "e_TextureDiffuse0", type = 2, value = mat.diffuse_map:lower()}
+		local cmd, args = line:match("%s*(%S+)%s([^\n]+)")
+		if cmd and args then
+			cmd = cmd:lower()
+			if mat_src then
+				if cmd == "v" then
+					local x, y, z = args:match("(%-?%d+%.%d+) (%-?%d+%.%d+) (%-?%d+%.%d+)")
+					if x and y and z then
+						insert(vert_src, {x = tonumber(x), y = tonumber(y), z = tonumber(z)})
 					end
-					if mat.normal_map then
-						insert(tbl, {name = "e_TextureNormal0", type = 2, value = mat.normal_map:lower()})
+				elseif cmd == "vt" then
+					local u, v = args:match("(%-?%d+%.%d+) (%-?%d+%.%d+)")
+					if u and v then
+						insert(uv_src, {u = tonumber(u), v = tonumber(v)})
 					end
-					insert(materials, tbl)
+				elseif cmd == "vn" then
+					local i, j, k = args:match("(%-?%d+%.%d+) (%-?%d+%.%d+) (%-?%d+%.%d+)")
+					if i and j and k then
+						insert(norm_src, {i = tonumber(i), j = tonumber(j), k = tonumber(k)})
+					end
+				elseif cmd == "usemtl" then
+					local mat = mat_src[args]
+					if mat then
+						mat_index = mat_index + 1
+						local tbl = {name = args, opaque = "Opaque_MaxCBSGE1.fx"}
+						if mat.diffuse_map then
+							local v = mat.diffuse_map:lower():match("[%w_]+%.%w+")
+							tbl[1] = {name = "e_TextureDiffuse0", type = 2, value = v}
+						end
+						if mat.normal_map then
+							local v = mat.normal_map:lower():match("[%w_]+%.%w+")
+							insert(tbl, {name = "e_TextureNormal0", type = 2, value = v})
+						end
+						insert(materials, tbl)
+					end
+				elseif cmd == "f" then
+					local v1, v2, v3 = args:match("(%d+/%d*/%d+) (%d+/%d*/%d+) (%d+/%d*/%d+)")
+					if v1 and v2 and v3 then
+						local a, b, c = face(v1), face(v2), face(v3)
+						insert(triangles, {
+							[1] = a,
+							[2] = b,
+							[3] = c,
+							group = mat_index,
+							flag = 65536,
+						})
+					end
 				end
-			elseif cmd == "f" then
-				local v1, v2, v3 = args:match("(%d+/%d*/%d+) (%d+/%d*/%d+) (%d+/%d*/%d+)")
-				if v1 and v2 and v3 then
-					local a, b, c = face(v1), face(v2), face(v3)
-					insert(triangles, {
-						[1] = a,
-						[2] = b,
-						[3] = c,
-						group = mat_index,
-						flag = 65536,
-					})
-				end
+			elseif cmd == "mtllib" then
+				mat_src = ReadMTL(path:gsub("[^\\/]+%.%w+$", args))
 			end
-		elseif cmd == "mtllib" then
-			mat_src = ReadMTL(path:gsub("[^\\/]+%.%w+$", args))
 		end
 	end
 

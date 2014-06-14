@@ -21,9 +21,9 @@ local function ReadMTL(path)
 				cur = {}
 				out[args] = cur
 			elseif cmd == "map_kd" then
-				cur.diffuse_map = args
+				cur.diffuse_map = args:match("[%w_]+%.%w+")
 			elseif cmd == "map_bump" then
-				cur.normal_map = args
+				cur.normal_map = args:match("[%w_]+%.%w+")
 			end
 		end
 	end
@@ -93,11 +93,11 @@ function obj.Import(path, dir, appending)
 						mat_index = mat_index + 1
 						local tbl = {name = args, opaque = "Opaque_MaxCBSGE1.fx"}
 						if mat.diffuse_map then
-							local v = mat.diffuse_map:lower():match("[%w_]+%.%w+")
+							local v = mat.diffuse_map:lower()
 							tbl[1] = {name = "e_TextureDiffuse0", type = 2, value = v}
 						end
 						if mat.normal_map then
-							local v = mat.normal_map:lower():match("[%w_]+%.%w+")
+							local v = mat.normal_map:lower()
 							insert(tbl, {name = "e_TextureNormal0", type = 2, value = v})
 						end
 						insert(materials, tbl)

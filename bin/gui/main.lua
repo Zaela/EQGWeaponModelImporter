@@ -43,7 +43,7 @@ local function LoadSettings()
 		set()
 		if settings and settings.folder then
 			search_path = settings.folder
-			UpdateDirList(path)
+			UpdateDirList(search_path)
 			return
 		end
 	end

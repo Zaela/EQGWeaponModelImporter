@@ -36,6 +36,7 @@ namespace Viewer
 			{
 				device->drop();
 				gRunThread.clear();
+				gViewMesh.store(nullptr);
 				return;
 			}
 
@@ -57,6 +58,7 @@ namespace Viewer
 					{
 						active_buffer->Material.setTexture(0, tex);
 					}
+					file->drop();
 				}
 
 				scene::SMesh* mesh = new scene::SMesh;
@@ -81,7 +83,9 @@ namespace Viewer
 			}
 			else
 			{
+				gViewMesh.store(nullptr);
 				device->drop();
+				gRunThread.clear();
 				return;
 			}
 			

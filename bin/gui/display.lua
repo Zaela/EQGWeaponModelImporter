@@ -42,6 +42,8 @@ local property_list
 
 local ipairs = ipairs
 
+local UpdateViewer
+
 local cur_data
 local cur_name
 local cur_name_mod
@@ -64,6 +66,47 @@ function UpdateDisplay(d, str, set)
 	material_list.autoredraw = "YES"
 
 	property_list[1] = nil
+
+	UpdateViewer(d)
+end
+
+local function FindTexture(name)
+	local dir = open_dir
+	if dir then
+		name = name:lower()
+		for i, ent in ipairs(dir) do
+			if ent.name == name then
+				local s, err = pcall(eqg.OpenEntry, ent)
+				if s then
+					ent.png_name = ent.name:match("[^%.]+") .. ".png"
+					return ent
+				end
+				return
+			end
+		end
+	end
+end
+
+local function FindDiffuse(m)
+	for i, mat in ipairs(m) do
+		for j, prop in ipairs(mat) do
+			if prop.name == "e_TextureDiffuse0" then
+				return FindTexture(prop.value)
+			end
+		end
+	end
+end
+
+function UpdateViewer(d)
+	local v = d.vertices
+	local t = d.triangles
+	local m = d.materials
+
+	local texture = FindDiffuse(m)
+	local s, err = pcall(viewer.LoadModel, v, t, texture, texture and (texture.name:match("%.(%w+)$") == "dds"))
+	if not s then
+		error_popup(err)
+	end
 end
 
 local properties_grid = iup.gridbox{

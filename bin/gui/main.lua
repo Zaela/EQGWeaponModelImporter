@@ -27,19 +27,22 @@ local function SetSearchFolder()
 		if path then
 			search_path = path
 			UpdateDirList(path)
+			local v = settings and settings.viewer
 			local f = assert(io.open("gui/settings.lua", "w+"))
-			f:write("\nreturn \"".. (path:gsub("\\", "\\\\")) .."\"\n")
+			f:write("\nsettings = {\n\tfolder = \"", (path:gsub("\\", "\\\\")), "\",\n")
+			f:write("\tviewer = {\n\t\twidth = ", v and v.width or 500, ",\n\t\theight = ", v and v.height or 500, ",\n")
+			f:write("\t}\n}\n")
 			f:close()
 		end
 	end
 end
 
 local function LoadSettings()
-	local settings = loadfile("gui/settings.lua")
-	if settings then
-		local path = settings()
-		if path then
-			search_path = path
+	local set = loadfile("gui/settings.lua")
+	if set then
+		set()
+		if settings and settings.folder then
+			search_path = settings.folder
 			UpdateDirList(path)
 			return
 		end
@@ -57,6 +60,14 @@ local menu = iup.menu{
 			iup.item{title = "Set EQG Search Folder", action = SetSearchFolder},
 			iup.separator{},
 			iup.item{title = "&Quit", action = function() return iup.CLOSE end},
+		},
+	},
+	iup.submenu{
+		title = "Viewer";
+		iup.menu{
+			iup.item{title = "Start Viewer", action = viewer.Open},
+			iup.separator{},
+			iup.item{title = "Stop Viewer", action = viewer.Close},
 		},
 	},
 }

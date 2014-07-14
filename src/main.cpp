@@ -1,6 +1,9 @@
 
 #include <lua.hpp>
 #include <cstdio>
+#include <irrlicht.h>
+#include <thread>
+#include <atomic>
 
 #include <iup.h>
 #include <iuplua.h>
@@ -10,6 +13,13 @@
 #include "mod.h"
 #include "prt.h"
 #include "pts.h"
+#include "viewer.h"
+
+//globals
+std::thread* gViewerThread;
+std::atomic<irr::scene::SMeshBuffer*> gViewMesh;
+std::atomic<Viewer::ImageFile*> gImageFile;
+std::atomic_flag gRunThread;
 
 #ifdef _WIN32
 #include <windows.h>
@@ -20,6 +30,10 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_ HINSTANCE hPrevInstance,
 int main()
 #endif
 {
+	gViewerThread = nullptr;
+	gImageFile.store(nullptr);
+	gViewMesh.store(nullptr);
+
 	lua_State* L = luaL_newstate();
 	luaL_openlibs(L);
 
@@ -31,6 +45,7 @@ int main()
 	MOD::LoadFunctions(L);
 	PRT::LoadFunctions(L);
 	PTS::LoadFunctions(L);
+	Viewer::LoadFunctions(L);
 
 	if (luaL_loadfile(L, "gui/main.lua") != 0)
 	{

@@ -27,7 +27,6 @@ namespace Viewer
 
 		scene::ICameraSceneNode* cam = mgr->addCameraSceneNodeMaya(nullptr, -100.0f, 10.0f, 2.5f, -1, 5);
 		scene::SMeshBuffer* active_buffer = nullptr;
-		scene::ISceneNode* node = nullptr;
 
 		for (;;)
 		{
@@ -42,17 +41,18 @@ namespace Viewer
 
 			//check if we have a new model to view
 			scene::SMeshBuffer* view_buffer = gViewMesh.load();
-			if (view_buffer != active_buffer)
+			if (view_buffer && view_buffer != active_buffer)
 			{
+				gViewMesh.store(nullptr);
 				active_buffer = view_buffer;
-				if (node)
-					node->remove();
+				mgr->clear();
 
 				mgr->setAmbientLight(video::SColorf(1, 1, 1));
 
 				ImageFile* file = gImageFile.load();
 				if (file)
 				{
+					gImageFile.store(nullptr);
 					video::ITexture* tex = driver->getTexture(file);
 					if (tex)
 					{
@@ -65,10 +65,11 @@ namespace Viewer
 				mesh->addMeshBuffer(active_buffer);
 				mesh->recalculateBoundingBox();
 
-				node = mgr->addMeshSceneNode(mesh);
+				scene::ISceneNode* node = mgr->addMeshSceneNode(mesh);
 				node->setRotation(core::vector3df(0, 45, 90));
 
 				auto& c = node->getBoundingBox().getCenter();
+				cam = mgr->addCameraSceneNodeMaya(nullptr, -100.0f, 10.0f, 2.5f, -1, 5);
 				cam->setTarget(node->getPosition() + core::vector3df(0, c.X, -c.X));
 
 				mesh->drop();
@@ -95,12 +96,16 @@ namespace Viewer
 
 	int LoadModel(lua_State* L)
 	{
-		//vertices, triangles, decompressed textures
+		//vertices, triangles, texture entry
 		luaL_checktype(L, 1, LUA_TTABLE);
 		luaL_checktype(L, 2, LUA_TTABLE);
 		int isDDS = lua_toboolean(L, 4);
 
 		//find out if real PNGs should be non-flipped or what
+
+		ImageFile* file = gImageFile.load();
+		if (file)
+			file->drop();
 
 		if (lua_istable(L, 3))
 		{
@@ -178,6 +183,10 @@ namespace Viewer
 		}
 
 		mbuf->recalculateBoundingBox();
+
+		scene::SMeshBuffer* old = gViewMesh.load();
+		if (old)
+			old->drop();
 
 		gViewMesh.store(mbuf);
 

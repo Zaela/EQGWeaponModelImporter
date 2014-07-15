@@ -78,7 +78,7 @@ local function FindTexture(name)
 			if ent.name == name then
 				local s, err = pcall(eqg.OpenEntry, ent)
 				if s then
-					ent.png_name = ent.name:match("[^%.]+") .. ".png"
+					ent.png_name = name:match("[^%.]+") .. ".png"
 					return ent
 				end
 				return
